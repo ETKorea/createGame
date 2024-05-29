@@ -4,19 +4,19 @@
 #include <cstdlib>
 #include <ctime>
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 700;
 const int BLOCK_GAP = 2;
 const int BLOCK_WIDTH = (SCREEN_WIDTH / 20) - BLOCK_GAP;
 const int BLOCK_HEIGHT = 20 - BLOCK_GAP;
 const int PADDLE_WIDTH = 100;
 const int PADDLE_HEIGHT = 20;
 const int BALL_SIZE = 10;
-const int PLAYER_LIFE = 3;
-const int BALL1_initX = 250;
-const int BALL2_initX = 550;
+const int PLAYER_LIFE = 4;
+//const int BALL1_initX = 250;
+//const int BALL2_initX = 550;
 const int BALL_initY = 400;
-int initialSpeed = 3;
+int initialSpeed = 5;
 int minBallY = 15 * (BLOCK_HEIGHT + BLOCK_GAP);
 int maxBallY = SCREEN_HEIGHT - 50 - PADDLE_HEIGHT - BALL_SIZE;
 
@@ -67,25 +67,32 @@ void moveBall(Ball& ball, std::vector<Block>& blocks, Paddle& paddle1, Paddle& p
 
     if (ball.rect.y + BALL_SIZE >= SCREEN_HEIGHT) {
         if (checkCollision(ball.rect, paddle1.rect)) {
-            ball.dy = -ball.dy;
+            int hitPos = (ball.rect.x + BALL_SIZE / 2) - (paddle1.rect.x + PADDLE_WIDTH / 2);
+            ball.dx = hitPos * 10 / (PADDLE_WIDTH / 2);
+            ball.dy = -abs(ball.dy);
         }
         else if (checkCollision(ball.rect, paddle2.rect)) {
-            ball.dy = -ball.dy;
+            int hitPos = (ball.rect.x + BALL_SIZE / 2) - (paddle2.rect.x + PADDLE_WIDTH / 2);
+            ball.dx = hitPos * 10 / (PADDLE_WIDTH / 2);
+            ball.dy = -abs(ball.dy);
         }
         else {
-            ball.dy = -ball.dy;
             if (ball.color.r == 0 && ball.color.b == 255) {
                 paddle1.life -= 1;
-                ball.rect.x = BALL1_initX;
+                ball.rect.x = rand() % (SCREEN_WIDTH - BALL_SIZE);
                 ball.rect.y = BALL_initY;
-                ball.dx = -initialSpeed;
+                do {
+                    ball.dx = (rand() % 5) - 2;
+                } while (ball.dx == 0);
                 ball.dy = -initialSpeed;
             }
             else if (ball.color.r == 255 && ball.color.b == 0) {
                 paddle2.life -= 1;
-                ball.rect.x = BALL2_initX;
+                ball.rect.x = rand() % (SCREEN_WIDTH - BALL_SIZE);
                 ball.rect.y = BALL_initY;
-                ball.dx = initialSpeed;
+                do {
+                    ball.dx = (rand() % 5) - 2;
+                } while (ball.dx == 0);
                 ball.dy = -initialSpeed;
             }
         }
@@ -127,18 +134,26 @@ int main(int argc, char* args[]) {
 
     srand(time(0));
     Ball ball1 = {
-    {BALL1_initX, BALL_initY, BALL_SIZE, BALL_SIZE },
-    -initialSpeed,
-    -initialSpeed,
-    { 0, 0, 255, 255 }
+        {(rand() % (SCREEN_WIDTH - BALL_SIZE)), BALL_initY, BALL_SIZE, BALL_SIZE },
+        (rand() % 5) - 2,
+        -initialSpeed,
+        { 0, 0, 255, 255 }
     };
 
+    while (ball1.dx == 0) {
+        ball1.dx = (rand() % 5) - 2;
+    }
+
     Ball ball2 = {
-        {BALL2_initX, BALL_initY, BALL_SIZE, BALL_SIZE },
-        initialSpeed,
+        {(rand() % (SCREEN_WIDTH - BALL_SIZE)), BALL_initY, BALL_SIZE, BALL_SIZE },
+        (rand() % 5) - 2,
         -initialSpeed,
         { 255, 0, 0, 255 }
     };
+
+    while (ball2.dx == 0) {
+        ball2.dx = (rand() % 5) - 2;
+    }
 
     int score1 = 0;
     int score2 = 0;
