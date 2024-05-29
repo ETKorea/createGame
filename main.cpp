@@ -167,7 +167,8 @@ int main(int argc, char* args[]) {
         moveBall(ball1, blocks, paddle1, paddle2, score1, score2);
         moveBall(ball2, blocks, paddle1, paddle2, score1, score2);
 
-        /*if (paddle1.life <= 0 || paddle2.life <= 0) {
+        /* life 관리, 현재 주석안의 내용은 게임을 끝내기에 수정할 필요성 있음
+        if (paddle1.life <= 0 || paddle2.life <= 0) {
             quit = true;
         }
         */
