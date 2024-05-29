@@ -78,11 +78,15 @@ void moveBall(Ball& ball, std::vector<Block>& blocks, Paddle& paddle1, Paddle& p
                 paddle1.life -= 1;
                 ball.rect.x = BALL1_initX;
                 ball.rect.y = BALL_initY;
+                ball.dx = -initialSpeed;
+                ball.dy = -initialSpeed;
             }
             else if (ball.color.r == 255 && ball.color.b == 0) {
                 paddle2.life -= 1;
                 ball.rect.x = BALL2_initX;
                 ball.rect.y = BALL_initY;
+                ball.dx = initialSpeed;
+                ball.dy = -initialSpeed;
             }
         }
     }
@@ -124,14 +128,14 @@ int main(int argc, char* args[]) {
     srand(time(0));
     Ball ball1 = {
     {BALL1_initX, BALL_initY, BALL_SIZE, BALL_SIZE },
-    initialSpeed,
+    -initialSpeed,
     -initialSpeed,
     { 0, 0, 255, 255 }
     };
 
     Ball ball2 = {
         {BALL2_initX, BALL_initY, BALL_SIZE, BALL_SIZE },
-        -initialSpeed,
+        initialSpeed,
         -initialSpeed,
         { 255, 0, 0, 255 }
     };
