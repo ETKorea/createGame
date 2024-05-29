@@ -23,7 +23,7 @@ const int BLOCK_HEIGHT = 20 - BLOCK_GAP;
 const int PADDLE_WIDTH = 100;
 const int PADDLE_HEIGHT = 20;
 const int BALL_SIZE = 10;
-const int PLAYER_LIFE = 4;
+const int PLAYER_LIFE = 2;
 const int BALL1_initX = 250;
 const int BALL2_initX = 550;
 const int BALL_initY = 400;
@@ -134,46 +134,66 @@ void moveBall(Ball& ball, std::vector<Block>& blocks, Paddle& paddle1, Paddle& p
     }
 
     if (ball.rect.y + BALL_SIZE >= SCREEN_HEIGHT) {
-    if (checkCollision(ball.rect, paddle1.rect)) {
-        ball.dy = -ball.dy;
-        if (ball.color.r == 0 && ball.color.b == 255) {
-            p1BallSpeedY = -p1BallSpeedY;
+        if (checkCollision(ball.rect, paddle1.rect)) {
+            ball.dy = -ball.dy;
+            if (ball.color.r == 0 && ball.color.b == 255) {
+                p1BallSpeedY = -p1BallSpeedY;
+            }
+            else if (ball.color.r == 255 && ball.color.b == 0) {
+                p2BallSpeedY = -p2BallSpeedY;
+            }
         }
-        else if (ball.color.r == 255 && ball.color.b == 0) {
-            p2BallSpeedY = -p2BallSpeedY;
+        else if (checkCollision(ball.rect, paddle2.rect)) {
+            ball.dy = -ball.dy;
+            if (ball.color.r == 0 && ball.color.b == 255) {
+                p1BallSpeedY = -p1BallSpeedY;
+            }
+            else if (ball.color.r == 255 && ball.color.b == 0) {
+                p2BallSpeedY = -p2BallSpeedY;
+            }
+        }
+        else {
+            //ball.dy = -ball.dy; 필요없는듯
+            if (ball.color.r == 0 && ball.color.b == 255) {
+                paddle1.life -= 1;
+                if (paddle1.life <= 0) {
+                    ball.rect.x = 1+ BALL_SIZE;
+                    ball.rect.y = SCREEN_WIDTH - BALL_SIZE -1;
+                    p1BallSpeedX = 0;
+                    p1BallSpeedY = 0;
+                    ball.dx = 0;
+                    ball.dy = 0;
+                }
+                else {
+                    ball.rect.x = BALL1_initX;
+                    ball.rect.y = BALL_initY;
+                    p1BallSpeedX = 0;
+                    p1BallSpeedY = 0;
+                    ball.dx = -initialSpeed;
+                    ball.dy = -initialSpeed;
+                }
+            }
+            else if (ball.color.r == 255 && ball.color.b == 0) {
+                paddle2.life -= 1;
+                if (paddle2.life <= 0) {
+                    ball.rect.x = 1 + BALL_SIZE;
+                    ball.rect.y = SCREEN_WIDTH - BALL_SIZE - 1;
+                    p2BallSpeedX = 0;
+                    p2BallSpeedY = 0;
+                    ball.dx = 0;
+                    ball.dy = 0;
+                }
+                else {
+                    ball.rect.x = BALL2_initX;
+                    ball.rect.y = BALL_initY;
+                    p2BallSpeedX = 0;
+                    p2BallSpeedY = 0;
+                    ball.dx = initialSpeed;
+                    ball.dy = -initialSpeed;
+                }
+            }
         }
     }
-    else if (checkCollision(ball.rect, paddle2.rect)) {
-        ball.dy = -ball.dy;
-        if (ball.color.r == 0 && ball.color.b == 255) {
-            p1BallSpeedY = -p1BallSpeedY;
-        }
-        else if (ball.color.r == 255 && ball.color.b == 0) {
-            p2BallSpeedY = -p2BallSpeedY;
-        }
-    }
-    else {
-        //ball.dy = -ball.dy; 필요없는듯
-        if (ball.color.r == 0 && ball.color.b == 255) {
-            paddle1.life -= 1;
-            ball.rect.x = BALL1_initX;
-            ball.rect.y = BALL_initY;
-            p1BallSpeedX = 0;
-            p1BallSpeedY = 0;
-            ball.dx = -initialSpeed;
-            ball.dy = -initialSpeed;
-        }
-        else if (ball.color.r == 255 && ball.color.b == 0) {
-            paddle2.life -= 1;
-            ball.rect.x = BALL2_initX;
-            ball.rect.y = BALL_initY;
-            p2BallSpeedX = 0;
-            p2BallSpeedY = 0;
-            ball.dx = initialSpeed;
-            ball.dy = -initialSpeed;
-        }
-    }
-}
 
     for (auto& block : blocks) {
         if (block.alive && checkCollision(ball.rect, block.rect)) {
@@ -324,7 +344,8 @@ int main(int argc, char* args[]) {
         { 255, 0, 0, 255 }
     };
 
-    /*Ball ball1 = {
+    /* 랜덤 볼 위치,속도 초기설정
+    Ball ball1 = {
         {(rand() % (SCREEN_WIDTH - BALL_SIZE)), BALL_initY, BALL_SIZE, BALL_SIZE },
         (rand() % 5) - 2,
         -initialSpeed,
@@ -392,11 +413,6 @@ int main(int argc, char* args[]) {
         moveBall(ball1, blocks, paddle1, paddle2, score1, score2);
         moveBall(ball2, blocks, paddle1, paddle2, score1, score2);
 
-        /* life 관리, 현재 주석안의 내용은 게임을 끝내기에 수정할 필요성 있음
-        if (paddle1.life <= 0 || paddle2.life <= 0) {
-            quit = true;
-        }
-        */
         // Update timer
         updateTimer();
 
@@ -424,7 +440,7 @@ int main(int argc, char* args[]) {
         renderTimer(renderer);
 
         // Check if the game is over
-        if (remainingTime <= 0) {
+        if ((remainingTime <= 0) || ((paddle1.life <= 0) && (paddle2.life <= 0))) {
             // Render winner
             renderWinner(renderer, score1, score2);
 
