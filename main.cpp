@@ -14,6 +14,8 @@ int p1BallSpeedX = 0;
 int p2BallSpeedX = 0;
 int p1BallSpeedY = 0;
 int p2BallSpeedY = 0;
+int p1PaddleSpeed = 0;
+int p2PaddleSpeed = 0;
 
 const int SCREEN_WIDTH = 1200;
 const int SCREEN_HEIGHT = 800;
@@ -23,7 +25,7 @@ const int BLOCK_HEIGHT = 20 - BLOCK_GAP;
 const int PADDLE_WIDTH = 100;
 const int PADDLE_HEIGHT = 20;
 const int BALL_SIZE = 10;
-const int PLAYER_LIFE = 2;
+const int PLAYER_LIFE = 5;
 const int BALL1_initX = 250;
 const int BALL2_initX = 550;
 const int BALL_initY = 400;
@@ -78,6 +80,7 @@ void randomItem(Ball& ball, int player) {
     if (randNum == 1) {
         if (player == 1) {
             speedIncreaseTime1 = std::chrono::steady_clock::now();
+            p1PaddleSpeed = 2;
             if (ball.dx < 0)
                 p1BallSpeedX = -2;
             else
@@ -89,6 +92,7 @@ void randomItem(Ball& ball, int player) {
         }
         else {
             speedIncreaseTime2 = std::chrono::steady_clock::now();
+            p2PaddleSpeed = 2;
             if (ball.dx < 0)
                 p2BallSpeedX = -2;
             else
@@ -161,6 +165,7 @@ void moveBall(Ball& ball, std::vector<Block>& blocks, Paddle& paddle1, Paddle& p
                     ball.rect.y = SCREEN_WIDTH - BALL_SIZE -1;
                     p1BallSpeedX = 0;
                     p1BallSpeedY = 0;
+                    p1PaddleSpeed = 0;
                     ball.dx = 0;
                     ball.dy = 0;
                 }
@@ -169,6 +174,7 @@ void moveBall(Ball& ball, std::vector<Block>& blocks, Paddle& paddle1, Paddle& p
                     ball.rect.y = BALL_initY;
                     p1BallSpeedX = 0;
                     p1BallSpeedY = 0;
+                    p2PaddleSpeed = 0;
                     ball.dx = -initialSpeed;
                     ball.dy = -initialSpeed;
                 }
@@ -384,16 +390,20 @@ int main(int argc, char* args[]) {
         const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
         if (currentKeyStates[SDL_SCANCODE_A] && paddle1.rect.x > 0) {
-            paddle1.rect.x -= 5;
+            paddle1.rect.x -= (5 + p1PaddleSpeed);
+
         }
         if (currentKeyStates[SDL_SCANCODE_D] && paddle1.rect.x < SCREEN_WIDTH - PADDLE_WIDTH) {
-            paddle1.rect.x += 5;
+            paddle1.rect.x += (5 + p1PaddleSpeed);
+
         }
         if (currentKeyStates[SDL_SCANCODE_LEFT] && paddle2.rect.x > 0) {
-            paddle2.rect.x -= 5;
+            paddle2.rect.x -= (5 + p2PaddleSpeed);
+
         }
         if (currentKeyStates[SDL_SCANCODE_RIGHT] && paddle2.rect.x < SCREEN_WIDTH - PADDLE_WIDTH) {
-            paddle2.rect.x += 5;
+            paddle2.rect.x += (5 + p2PaddleSpeed);
+
         }
 
         auto currentTime = std::chrono::steady_clock::now();
@@ -403,11 +413,13 @@ int main(int argc, char* args[]) {
             // Revert the speed back to its original value
             p1BallSpeedX = 0;
             p1BallSpeedY = 0;
+            p1PaddleSpeed = 0;
         }
         if (duration2.count() >= 5) {
             // Revert the speed back to its original value
             p2BallSpeedX = 0;
             p2BallSpeedY = 0;
+            p2PaddleSpeed = 0;
         }
 
         moveBall(ball1, blocks, paddle1, paddle2, score1, score2);
