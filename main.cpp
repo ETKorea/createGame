@@ -25,9 +25,9 @@ const int BLOCK_HEIGHT = 20 - BLOCK_GAP;
 const int PADDLE_WIDTH = 100;
 const int PADDLE_HEIGHT = 20;
 const int BALL_SIZE = 10;
-const int PLAYER_LIFE = 5;
-const int BALL1_initX = 250;
-const int BALL2_initX = 550;
+const int PLAYER_LIFE = 3;
+const int BALL1_initX = 400;
+const int BALL2_initX = 800;
 const int BALL_initY = 400;
 int initialSpeed = 5;
 int minBallY = 15 * (BLOCK_HEIGHT + BLOCK_GAP);
@@ -39,7 +39,7 @@ const int TIMER_FONT_SIZE = 24;
 
 Uint32 startTime = SDL_GetTicks();
 int elapsedTime = 0;
-int remainingTime = 60000; // 1 minute in milliseconds
+int remainingTime = 60000;
 
 struct Paddle {
     SDL_Rect rect;
@@ -157,7 +157,6 @@ void moveBall(Ball& ball, std::vector<Block>& blocks, Paddle& paddle1, Paddle& p
             }
         }
         else {
-            //ball.dy = -ball.dy; 필요없는듯
             if (ball.color.r == 0 && ball.color.b == 255) {
                 paddle1.life -= 1;
                 if (paddle1.life <= 0) {
@@ -176,7 +175,10 @@ void moveBall(Ball& ball, std::vector<Block>& blocks, Paddle& paddle1, Paddle& p
                     p1BallSpeedY = 0;
                     p2PaddleSpeed = 1;
                     ball.dx = -initialSpeed;
-                    ball.dy = -initialSpeed;
+                    int num = (rand() % 3);
+                    if (num == 0) ball.dy = -5;
+                    else if (num == 1) ball.dy = -7;
+                    else ball.dy = -3;
                 }
             }
             else if (ball.color.r == 255 && ball.color.b == 0) {
@@ -195,7 +197,10 @@ void moveBall(Ball& ball, std::vector<Block>& blocks, Paddle& paddle1, Paddle& p
                     p2BallSpeedX = 0;
                     p2BallSpeedY = 0;
                     ball.dx = initialSpeed;
-                    ball.dy = -initialSpeed;
+                    int num = (rand() % 3);
+                    if (num == 0) ball.dy = -5;
+                    else if (num == 1) ball.dy = -7;
+                    else ball.dy = -3;
                 }
             }
         }
@@ -245,21 +250,17 @@ void moveBall(Ball& ball, std::vector<Block>& blocks, Paddle& paddle1, Paddle& p
 }
 
 void renderTimer(SDL_Renderer* renderer) {
-    // Remaining time in seconds
     int seconds = (remainingTime - elapsedTime) / 1000;
 
-    // Convert seconds to minutes and seconds
     int minutes = seconds / 60;
     seconds %= 60;
 
-    // Render timer text
-    SDL_Color textColor = { 0, 0, 0, 255 }; // 검정색
-    char timerText[20]; // 충분한 크기로 배열을 설정합니다.
-    sprintf(timerText, "Time: %02d:%02d", minutes, seconds); // %02d를 사용하여 0을 포함한 두 자리 정수로 포맷팅합니다.
+    SDL_Color textColor = { 0, 0, 0, 255 };
+    char timerText[20];
+    sprintf(timerText, "Time: %02d:%02d", minutes, seconds);
 
     TTF_Font* font = TTF_OpenFont("arial.ttf", TIMER_FONT_SIZE);
     if (font == NULL) {
-        // Handle font loading error
         std::cerr << "Failed to load font! Error: " << TTF_GetError() << std::endl;
         return;
     }
@@ -269,38 +270,33 @@ void renderTimer(SDL_Renderer* renderer) {
     SDL_Rect textRect = { TIMER_X, TIMER_Y, textSurface->w, textSurface->h };
     SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
-    // Clean up
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
     TTF_CloseFont(font);
 }
 
 void updateTimer() {
-    // Calculate elapsed time
     Uint32 currentTime = SDL_GetTicks();
     elapsedTime = currentTime - startTime;
 
-    // Calculate remaining time
-    remainingTime = 60000 - elapsedTime; // 1 minute in milliseconds
+    remainingTime = 60000 - elapsedTime;
     if (remainingTime < 0) {
         remainingTime = 0;
     }
 }
 
 void renderScores(SDL_Renderer* renderer, int score1, int score2) {
-    // Render scores for player 1 and player 2
-    SDL_Color textColor = { 0, 0, 0, 255 }; // 검정색
-    char scoreText[20]; // 충분한 크기로 배열을 설정합니다.
+    SDL_Color textColor = { 0, 0, 0, 255 };
+    char scoreText[20];
     sprintf(scoreText, "Player 1: %d", score1);
     TTF_Font* font = TTF_OpenFont("arial.ttf", 24);
     if (font == NULL) {
-        // Handle font loading error
         std::cerr << "Failed to load font! Error: " << TTF_GetError() << std::endl;
         return;
     }
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, scoreText, textColor);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    SDL_Rect textRect = { 20, 20, textSurface->w, textSurface->h }; // 상단 좌측에 위치하도록 설정
+    SDL_Rect textRect = { 20, 20, textSurface->w, textSurface->h };
     SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
@@ -309,7 +305,6 @@ void renderScores(SDL_Renderer* renderer, int score1, int score2) {
     sprintf(scoreText, "Player 2: %d", score2);
     font = TTF_OpenFont("arial.ttf", 24);
     if (font == NULL) {
-        // Handle font loading error
         std::cerr << "Failed to load font! Error: " << TTF_GetError() << std::endl;
         return;
     }
@@ -323,8 +318,7 @@ void renderScores(SDL_Renderer* renderer, int score1, int score2) {
 }
 
 void renderWinner(SDL_Renderer* renderer, int score1, int score2) {
-    // Render winner text
-    SDL_Color textColor = { 0, 0, 0, 255 }; // 검정색
+    SDL_Color textColor = { 0, 0, 0, 255 };
     std::string winnerText;
     if (score1 > score2) {
         winnerText = "Player 1 Wins!";
@@ -338,7 +332,6 @@ void renderWinner(SDL_Renderer* renderer, int score1, int score2) {
 
     TTF_Font* font = TTF_OpenFont("arial.ttf", 36);
     if (font == NULL) {
-        // Handle font loading error
         std::cerr << "Failed to load font! Error: " << TTF_GetError() << std::endl;
         return;
     }
@@ -351,12 +344,10 @@ void renderWinner(SDL_Renderer* renderer, int score1, int score2) {
     SDL_Rect textRect = { (SCREEN_WIDTH - textWidth) / 2, (SCREEN_HEIGHT - textHeight) / 2, textWidth, textHeight };
     SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
-    // Render scores
     renderScores(renderer, score1, score2);
 
     SDL_RenderPresent(renderer);
     SDL_Delay(3000);
-    // Clean up
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
     TTF_CloseFont(font);
@@ -380,41 +371,22 @@ int main(int argc, char* args[]) {
     Ball ball1 = {
        {BALL1_initX, BALL_initY, BALL_SIZE, BALL_SIZE },
        -initialSpeed,
-       -initialSpeed,
+       (rand() % 3),
        { 0, 0, 255, 255 }
     };
+    if (ball1.dy == 0) ball1.dy= -5;
+    else if (ball1.dy == 1) ball1.dy= -7;
+    else ball1.dy = -3;
 
     Ball ball2 = {
         {BALL2_initX, BALL_initY, BALL_SIZE, BALL_SIZE },
         initialSpeed,
-        -initialSpeed,
+        (rand() % 3),
         { 255, 0, 0, 255 }
     };
-
-    /* 랜덤 볼 위치,속도 초기설정
-    Ball ball1 = {
-        {(rand() % (SCREEN_WIDTH - BALL_SIZE)), BALL_initY, BALL_SIZE, BALL_SIZE },
-        (rand() % 5) - 2,
-        -initialSpeed,
-        { 0, 0, 255, 255 }
-    };
-
-    while (ball1.dx == 0) {
-        ball1.dx = (rand() % 5) - 2;
-    }
-
-    Ball ball2 = {
-        {(rand() % (SCREEN_WIDTH - BALL_SIZE)), BALL_initY, BALL_SIZE, BALL_SIZE },
-        (rand() % 5) - 2,
-        -initialSpeed,
-        { 255, 0, 0, 255 }
-    };
-
-    while (ball2.dx == 0) {
-        ball2.dx = (rand() % 5) - 2;
-    }
-    */
-
+    if (ball2.dy == 0) ball2.dy = -5;
+    else if (ball2.dy == 1) ball2.dy = -7;
+    else ball2.dy = -3;
     int score1 = 0;
     int score2 = 0;
 
@@ -447,13 +419,11 @@ int main(int argc, char* args[]) {
         auto duration1 = std::chrono::duration_cast<std::chrono::seconds>(currentTime - speedIncreaseTime1);
         auto duration2 = std::chrono::duration_cast<std::chrono::seconds>(currentTime - speedIncreaseTime2);
         if (duration1.count() >= 5) {
-            // 속도를 원래 값으로 되돌립니다.
             p1BallSpeedX = 0;
             p1BallSpeedY = 0;
             p1PaddleSpeed = 1;
         }
         if (duration2.count() >= 5) {
-            // 속도를 원래 값으로 되돌립니다.
             p2BallSpeedX = 0;
             p2BallSpeedY = 0;
             p2PaddleSpeed = 1;
@@ -462,7 +432,6 @@ int main(int argc, char* args[]) {
         moveBall(ball1, blocks, paddle1, paddle2, score1, score2);
         moveBall(ball2, blocks, paddle1, paddle2, score1, score2);
 
-        // 타이머 업데이트
         updateTimer();
 
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -485,18 +454,13 @@ int main(int argc, char* args[]) {
         SDL_SetRenderDrawColor(renderer, ball2.color.r, ball2.color.g, ball2.color.b, ball2.color.a);
         SDL_RenderFillRect(renderer, &ball2.rect);
 
-        // 점수 렌더링
         renderScores(renderer, score1, score2);
 
-        // 타이머 렌더링
         renderTimer(renderer);
 
-        // 게임 종료 확인
         if ((remainingTime - elapsedTime <= 0) || ((paddle1.life <= 0) && (paddle2.life <= 0))) {
-            // 승자 렌더링
             renderWinner(renderer, score1, score2);
 
-            // 게임 루프 종료
             quit = true;
         }
 
