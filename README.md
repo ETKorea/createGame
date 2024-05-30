@@ -23,4 +23,7 @@
 6. 프로젝트 실행
 ***
 ## 게임 실행 과정
-  - ![프로그램 작동 사진]()
+타이머가 종료될 때 까지 실행한 gif
+  - ![프로그램 작동 사진](https://github.com/ETKorea/Shared-data/blob/main/createGamegif.gif)
+양 쪽 life가 0이 되어 종료된 사진
+  - ![프로그램 작동 사진](https://github.com/ETKorea/Shared-data/blob/main/createGamejpg.png)
